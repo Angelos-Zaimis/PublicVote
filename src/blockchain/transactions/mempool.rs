@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use secp256k1::PublicKey;
 use sha2::{Digest, Sha256};
-use crate::blockchain::transaction::Transaction;
+use crate::blockchain::transactions::transaction::Transaction;
 
 const MAX_MEMPOOL_SIZE: usize = 10_000;
 
