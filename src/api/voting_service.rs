@@ -1,4 +1,5 @@
 use std::sync::{Arc, Mutex};
+use crate::api::dtos::VoteRequestDTO;
 use crate::blockchain::voting_state::Voting;
 
 pub struct VotingService {
@@ -15,8 +16,8 @@ impl VotingService {
         state.has_voted(&voter_id)
     }
 
-    pub fn vote(&self, voter_id: String) -> bool {
+    pub fn create_new_vote(&self, vote_request_dto: VoteRequestDTO){
         let mut state = self.state.lock().unwrap();
-        state.record_vote(voter_id)
+        state.record_new_vote(vote_request_dto)
     }
 }

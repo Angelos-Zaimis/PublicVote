@@ -1,8 +1,10 @@
 use std::collections::HashSet;
 use std::sync::Arc;
+use crate::api::dtos::VoteRequestDTO;
+use crate::blockchain::transactions::transaction::VoteTransaction;
 
 pub trait Voting: Send + Sync {
-    fn record_vote(&mut self, voter_id: String) -> bool;
+    fn record_new_vote(&mut self, vote_request_dto: VoteRequestDTO);
     fn has_voted(&self, voter_id: &String) -> bool;
 }
 
@@ -19,12 +21,10 @@ impl VotingState {
 }
 
 impl Voting for VotingState {
-    fn record_vote(&mut self, voter_id: String) -> bool {
-        if self.has_voted(&voter_id) {
-            return false;
-        }
-        self.voted_users.insert(voter_id);
-        true
+    fn record_new_vote(&mut self, vote_request_dto: VoteRequestDTO) {
+        let new_transaction = VoteTransaction::new();
+
+
     }
 
     fn has_voted(&self, voter_id: &String) -> bool {
