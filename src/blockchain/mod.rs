@@ -1,4 +1,4 @@
 pub mod block;
-pub mod transaction;
-mod mempool;
-mod miner;
+mod transactions;
+pub mod voting_state;
+use voting_state::Voting;

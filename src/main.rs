@@ -1,9 +1,10 @@
-use rand::rngs::OsRng;
-use secp256k1::{PublicKey, Secp256k1, SecretKey};
-use crate::blockchain::transaction::Transaction;
+use std::sync::{Arc, Mutex};
+use crate::api::voting_service::VotingService;
+use crate::blockchain::voting_state::VotingState;
 
 mod blockchain;
 mod api;
+
 
 #[tokio::main]
 async fn main() {
