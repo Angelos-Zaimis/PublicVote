@@ -1,47 +1,50 @@
 use std::ptr::read;
+use chrono::Utc;
 use secp256k1::{All, Message, PublicKey, Secp256k1, SecretKey};
 use serde::{Deserialize, Serialize};
 use hex;
 use secp256k1::ecdsa::Signature;
 use sha2::{Digest, Sha256};
+use uuid::Uuid;
 
 const BASE_FEE: f64 = 0.1;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Transaction {
-    pub sender: String,
-    pub receiver: String,
-    pub amount: f64,
-    pub fee: f64,
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct VoteTransaction {
+    pub transaction_id: String,
+    pub voter_public_key: String,
+    pub vote_data: String,
+    pub timestamp: String,
+    pub election_id: String,
 }
-
 #[derive(Debug, Clone)]
 pub struct SignedTransaction {
-    pub(crate) transaction: Transaction,
+    pub(crate) transaction: VoteTransaction,
     pub(crate) signature: Vec<u8>
 }
 
 impl SignedTransaction {
     pub fn is_valid(&self, public_key: &PublicKey) -> bool {
-        Transaction::verify_transaction(public_key, &self.transaction, &self.signature)
+        VoteTransaction::verify_transaction(public_key, &self.transaction, &self.signature)
     }
 }
 
-impl Transaction {
+impl VoteTransaction {
 
-    pub fn new(sender: String, receiver: String, amount: f64) -> Self {
-        Self {
-            sender,
-            receiver,
-            amount,
-            fee: BASE_FEE
+    pub fn new(voter_public_key: String, vote_data: String, election_id: String) -> Self {
+        VoteTransaction {
+            transaction_id: Uuid::new_v4().to_string(),
+            voter_public_key,
+            vote_data,
+            election_id,
+            timestamp: Utc::now().to_rfc3339(),
         }
     }
 
-    pub fn sing_transaction(transaction: &Transaction, private_key: &str) -> Result<SignedTransaction, String> {
+    pub fn sing_transaction(transaction: &VoteTransaction, private_key: &str) -> Result<SignedTransaction, String> {
         let secp: Secp256k1<All> = Secp256k1::new();
 
-        let private_key: SecretKey = Transaction::get_private_key(&private_key)?;
+        let private_key: SecretKey = VoteTransaction::get_private_key(&private_key)?;
 
         let transaction_hash = Self::hash_transaction(transaction);
 
@@ -55,7 +58,7 @@ impl Transaction {
         })
     }
 
-    pub fn verify_transaction(public_key: &PublicKey, transaction: &Transaction, signature: &[u8]) -> bool {
+    pub fn verify_transaction(public_key: &PublicKey, transaction: &VoteTransaction, signature: &[u8]) -> bool {
         let secp: Secp256k1<All> = Secp256k1::new();
         let transaction_hash = Self::hash_transaction(transaction);
         let message_hash = Self::get_message(&transaction_hash).expect("Failed to get message");
@@ -85,7 +88,7 @@ impl Transaction {
             .and_then(|bytes| SecretKey::from_slice(&bytes).map_err(|_| "Invalid private key".to_string()))
     }
 
-    fn hash_transaction(tx: &Transaction) -> [u8; 32] {
+    fn hash_transaction(tx: &VoteTransaction) -> [u8; 32] {
         let serialized_tx: Vec<u8> = serde_json::to_vec(tx).expect("Failed to serialize transaction");
         let hash = Sha256::digest(&serialized_tx);
         let mut result = [0u8; 32];

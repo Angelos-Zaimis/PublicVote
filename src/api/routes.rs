@@ -3,7 +3,6 @@ use axum::Router;
 use std::sync::{Arc, Mutex};
 use tower_http::cors::CorsLayer;
 
-use crate::api;
 use crate::api::handler::handle_create_vote;
 use crate::api::voting_service::VotingService;
 use crate::blockchain::voting_state::VotingState;
