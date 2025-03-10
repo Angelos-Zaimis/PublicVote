@@ -22,7 +22,7 @@ impl VotingState {
 
 impl Voting for VotingState {
     fn record_new_vote(&mut self, vote_request_dto: VoteRequestDTO) {
-        let new_transaction = VoteTransaction::new();
+        let new_transaction = VoteTransaction::new(vote_request_dto.voter_public_key, );
 
 
     }

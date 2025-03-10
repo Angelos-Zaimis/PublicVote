@@ -2,13 +2,13 @@ use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use secp256k1::PublicKey;
 use sha2::{Digest, Sha256};
-use crate::blockchain::transactions::transaction::Transaction;
+use crate::blockchain::transactions::transaction::VoteTransaction;
 
 const MAX_MEMPOOL_SIZE: usize = 10_000;
 
 #[derive(Debug)]
 pub struct Mempool {
-    transactions: Arc<RwLock<HashMap<String, Transaction>>>,
+    transactions: Arc<RwLock<HashMap<String, VoteTransaction>>>,
 }
 
 
@@ -19,7 +19,7 @@ impl Mempool {
         }
     }
 
-    pub fn add_transaction(&mut self, transaction: Transaction, sender_public_key: &PublicKey) -> Result<(), String> {
+    pub fn add_transaction(&mut self, transaction: VoteTransaction, sender_public_key: &PublicKey) -> Result<(), String> {
         let mut pool = self.transactions.write().expect("Failed acquire write lock");
 
         if pool.len() >= MAX_MEMPOOL_SIZE {
@@ -31,16 +31,12 @@ impl Mempool {
         Ok(())
     }
 
-
-    // TO-DO: remove transaction
-
-    //TO-DO: get transaction
     pub fn contains_transaction(&self, transaction_hash: &str) -> bool {
         let pool = self.transactions.read().expect("Failed to acquire read lock");
         pool.contains_key(transaction_hash)
     }
 
-    fn hash_transaction(transaction: &Transaction) -> String {
+    fn hash_transaction(transaction: &VoteTransaction) -> String {
         let serialized_transaction = serde_json::to_vec(transaction).expect("Failed to serialize transaction");
         let hash = Sha256::digest(&serialized_transaction);
         hex::encode(hash)

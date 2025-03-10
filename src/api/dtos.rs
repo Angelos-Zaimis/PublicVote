@@ -11,4 +11,7 @@ pub struct VoteRequestDTO {
 
     #[validate(length(min = 1, message = "Candidate ID cannot be empty"))]
     pub candidate_id: String,
+
+    #[validate(length(min = 1, message = "Candidate ID cannot be empty"))]
+    pub voter_public_key: String,
 }
